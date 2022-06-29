@@ -1,0 +1,22 @@
+{
+  "code": "SUCCESS'",
+  "errorCode": "0000",
+  "message": "정상입니다.",
+  "result": [
+    {
+      "id": 1,
+      "username": "soyoung",
+      "img": "https://source.unsplash.com/random/600x500"
+    },
+    {
+      "id": 2,
+      "username": "wanted",
+      "img": "https://source.unsplash.com/random/900x500"
+    },
+    {
+      "id": 3,
+      "username": "preonboarding",
+      "img": "https://source.unsplash.com/random/700x1080"
+    }
+  ]
+}
