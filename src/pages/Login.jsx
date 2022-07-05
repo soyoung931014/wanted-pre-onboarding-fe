@@ -2,71 +2,82 @@ import React, { useState } from 'react';
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { emailRegExp, passwordRegExp } from '../common/validation';
 
 function Login() {
-  const inputId = useRef();
-  const inputPassword = useRef();
-  const buttonLogin = useRef();
+  console.log('리렌더링?');
+  const inputId = useRef(null);
+  console.log(inputId);
+  const inputPassword = useRef(null);
+  const buttonLogin = useRef(null);
   const navigate = useNavigate();
-
-  const emailRegExp =
-    /^[A-Za-z0-9_]+[A-Za-z0-9]*[@]{1}[A-Za-z0-9]+[A-Za-z0-9]*[.]{1}[A-Za-z]{1,3}$/;
-  const passwordRegExp = /^(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[^\w\s]).{8,}$/;
 
   const [userInfo, setUserInfo] = useState({
     id: '',
     password: '',
   });
-  const [emailValidation, setEmailValidation] = useState(false);
-  const [passwordValidation, setPasswordValidation] = useState(false);
 
-  const handleChangeInfo = (e) => {
-    setUserInfo({ ...userInfo, [e.target.name]: e.target.value });
-  };
+  //유효성 검사
+  const handleValidation = (e, ref) => {
+    let { value } = ref.current;
+    let { name } = e.target;
 
-  const handleValidation = (e) => {
-    handleChangeInfo(e);
-    if (e.target.name === 'id') {
-      if (emailRegExp.test(e.target.value) === false) {
-        inputId.current.style = 'border: 2px solid red';
-        console.log(inputId, 'hihi');
-        setEmailValidation(false);
+    if (name === 'id') {
+      if (emailRegExp.test(value) === false) {
+        ref.current.style = 'border: 2px solid red';
+        ref.current.validation = 'false';
       } else {
-        inputId.current.style = '';
-        setEmailValidation(true);
+        ref.current.style = '';
+        ref.current.validation = 'true';
       }
     }
-    if (e.target.name === 'password') {
-      if (passwordRegExp.test(e.target.value) === false) {
-        inputPassword.current.style = 'border: 2px solid red';
-        setPasswordValidation(false);
+
+    if (name === 'password') {
+      if (!passwordRegExp.test(value)) {
+        ref.current.style = 'border: 2px solid red';
+        ref.current.validation = 'false';
       } else {
-        inputPassword.current.style = '';
-        setPasswordValidation(true);
+        ref.current.style = '';
+        ref.current.validation = 'true';
       }
     }
-    if (emailValidation === true && passwordValidation === true) {
-      buttonLogin.current.style = 'background: blue';
+
+    if (
+      inputId.current.validation === 'true' &&
+      inputPassword.current.validation === 'true'
+    ) {
+      buttonLogin.current.style = 'background:  blue';
     } else {
       buttonLogin.current.style = 'background: #0e95f7;';
     }
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (userInfo.id.length < 1) {
+    if (inputId.current.value.length < 1) {
       inputId.current.focus();
       return;
     }
-    if (userInfo.password.length < 1) {
+    if (inputPassword.current.value.length < 1) {
       inputPassword.current.focus();
       return;
     }
-    const { id, password } = userInfo;
-    window.localStorage.setItem('id', id);
-    window.localStorage.setItem('password', password);
-    alert('로그인 성공');
-    navigate('/', { replace: true });
+
+    if (
+      inputId.current.validation === 'true' &&
+      inputPassword.current.validation === 'true'
+    ) {
+      setUserInfo({
+        ...userInfo,
+        id: inputId.current.value,
+        password: inputPassword.current.value,
+      });
+
+      const { id, password } = userInfo;
+      window.localStorage.setItem('id', id);
+      window.localStorage.setItem('password', password);
+      alert('로그인 성공');
+      navigate('/', { replace: true });
+    }
   };
 
   return (
@@ -81,7 +92,7 @@ function Login() {
             name="id"
             ref={inputId}
             placeholder="이메일"
-            onChange={handleValidation}
+            onChange={(e) => handleValidation(e, inputId)}
           />
         </Box>
         <Box>
@@ -91,7 +102,7 @@ function Login() {
             ref={inputPassword}
             placeholder="비밀번호"
             autoComplete="off"
-            onChange={handleValidation}
+            onChange={(e) => handleValidation(e, inputPassword)}
           />
         </Box>
         <Box Button>
